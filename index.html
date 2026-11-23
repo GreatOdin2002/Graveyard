@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Вечный покой</title>
+<meta name="theme-color" content="#141317">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Вечный покой">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+:root{--bg:#141317;--panel:#201e26;--panel2:#2a2731;--gold:#c9a84c;--gold-dim:#8a7a4f;--text:#e8e2d5;--dim:#9a917f;--green:#7fae7a;--red:#c96a5a;--blue:#7a9ec9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif;min-height:100vh}
+#app{display:flex;min-height:100vh}
+#side{width:210px;background:var(--panel);border-right:1px solid #35313d;padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.logo{font-size:19px;color:var(--gold);text-align:center;margin-bottom:8px;letter-spacing:1px}
+.logo small{display:block;font-size:10px;color:var(--dim);letter-spacing:2px}
+.tab{padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--dim);font-size:14px;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.tab:hover{background:var(--panel2);color:var(--text)}
+.tab.active{background:#3a3450;color:var(--gold)}
+.badge{background:var(--gold);color:#1a1a1f;border-radius:10px;font-size:11px;padding:0 6px;min-width:18px;text-align:center}
+.badge.ok{background:var(--green)}
+#sidefoot{margin-top:auto;display:flex;gap:6px}
+#sidefoot button{flex:1;background:var(--panel2);border:1px solid #3d3946;color:var(--dim);border-radius:8px;padding:6px;cursor:pointer;font-size:14px}
+#main{flex:1;min-width:0}
+#top{position:sticky;top:0;background:var(--bg);z-index:5;padding:12px 20px;border-bottom:1px solid #35313d;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chip{background:var(--panel);border:1px solid #3d3946;border-radius:10px;padding:6px 12px;font-size:14px;display:flex;gap:6px;align-items:center;cursor:default}
+.chip.off{opacity:.35}
+#energybar{width:110px;height:10px;background:#111;border-radius:6px;overflow:hidden;border:1px solid #3d3946}
+#energyfill{height:100%;background:var(--gold);transition:width .3s}
+.spacer{flex:1}
+#newday{background:var(--gold);color:#1a1a1f;border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-family:inherit;font-size:15px;font-weight:bold}
+#newday:hover{filter:brightness(1.1)}
+#content{padding:20px 24px;max-width:1100px}
+h2{color:var(--gold);font-size:20px;margin-bottom:4px}
+h3{color:var(--gold);font-size:16px;margin:16px 0 8px}
+.sub{color:var(--dim);font-size:13px;margin-bottom:14px;line-height:1.55;max-width:760px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid #3d3946;border-radius:12px;padding:12px}
+.card h4{font-size:15px;margin-bottom:6px}
+.card .meta{color:var(--dim);font-size:12px;line-height:1.5;margin-bottom:8px}
+.card.occupied{border-color:#5a4a3a}
+.btn{background:#3a3450;color:var(--text);border:1px solid #565066;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit;font-size:13px;margin:2px}
+.btn:hover:not(:disabled){background:#4a4360}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.gold{background:#5a4a2a;border-color:var(--gold-dim);color:var(--gold)}
+.btn.red{background:#4a2a2a;border-color:#6a3a3a;color:var(--red)}
+.btn.green{background:#2a4a2a;border-color:#3a6a3a;color:var(--green)}
+.why{color:var(--red);font-size:12px;margin-top:4px}
+.flavor{color:var(--dim);font-style:italic;font-size:13px;line-height:1.55;margin:8px 0;max-width:760px}
+.deco{font-size:16px;letter-spacing:2px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--panel2);border:1px solid var(--gold-dim);padding:10px 16px;border-radius:10px;font-size:14px;z-index:100;animation:tin .3s;max-width:340px;line-height:1.4}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+.float{position:fixed;color:var(--gold);font-weight:bold;pointer-events:none;animation:fl 1.1s forwards;z-index:99;font-size:15px}
+@keyframes fl{to{transform:translateY(-44px);opacity:0}}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal{background:var(--panel);border:1px solid var(--gold-dim);border-radius:14px;padding:24px;max-width:560px;width:92%;max-height:82vh;overflow-y:auto;line-height:1.55}
+.modal p{margin:10px 0;font-size:14px}
+.modal h3{margin-top:0}
+.price{color:var(--gold)}
+.trend{font-size:12px}
+.up{color:var(--green)}.down{color:var(--red)}
+.tech-done{opacity:.55;border-color:var(--green)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media(max-width:800px){#side{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap}#app{flex-direction:column}.logo{width:100%}.tab{padding:6px 8px;font-size:12px}#content{padding:14px}}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="side">
+<div class="logo">ВЕЧНЫЙ ПОКОЙ<small>симулятор смотрителя</small></div>
+<div id="tabs"></div>
+<div id="sidefoot">
+<button onclick="toggleSound()" id="sndBtn" title="Звук">🔔</button>
+<button onclick="showHelp()" title="Справка">❔</button>
+<button onclick="resetGame()" title="Начать заново">↺</button>
+</div>
+</div>
+<div id="main">
+<div id="top"></div>
+<div id="content"></div>
+</div>
+</div>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+<script>
+// ================= ДАННЫЕ =================
+const ITEMS={
+coins:{n:'Монеты',i:'💰',d:'Звенящая валюта деревни. Густав любит повторять: «Монеты мертвы, но всегда в хорошей форме».'},
+energy:{n:'Энергия',i:'⚡',d:'Твои силы. Восстанавливаются за сном, кофе и правильным настроением.'},
+rep:{n:'Репутация',i:'⭐',d:'Что о тебе думает деревня и епархия. До 100 — образцовое кладбище.'},
+science:{n:'Наука',i:'📜',d:'Знания, добытые за столом и в лаборатории. Топливо технологий.'},
+fat:{n:'Жир',i:'🫗',d:'Ресурс сомнительного происхождения. Превращается в воск на печи.'},
+wax:{n:'Воск',i:'🕯️',d:'Основной товар деревни. Пахнет мёдом и немного — виной.'},
+candle:{n:'Свеча',i:'🕯',d:'Свет для живых и мёртвых. Продай на рынке или укрась могилу.'},
+thread:{n:'Нить',i:'🧵',d:'Покупается у Густава. Без неё фитиль не свить.'},
+bones:{n:'Кости',i:'🦴',d:'Из земли и из морга. Мелются в костную муку.'},
+flour:{n:'Костная мука',i:'🥣',d:'Молотые кости. Пахнет старыми обещаниями.'},
+fertilizer:{n:'Удобрение',i:'🌱',d:'Питательный грунт для клумб: кости честно отрабатывают своё.'},
+blood:{n:'Кровь',i:'🩸',d:'Тёмная и густая. Основа чернил и пары несвязанных загадок.'},
+ink:{n:'Чернила',i:'🖋️',d:'Идеальны для писем и расписок. Не спрашивай, из чего.'},
+brain:{n:'Мозг',i:'🧠',d:'Хранилище чужих мыслей. Изучается ради науки или продаётся коллекционерам с непритязательными запросами.'},
+skull:{n:'Череп',i:'💀',d:'Голова бывшего соседа. Добывается только вскрытием в морге. Дорогая редкость: коллекционеры, ворон и наука.'},
+flesh:{n:'Плоть',i:'🥩',d:'Густав покупает её не глядя. Мы тоже не будем.'},
+flowers:{n:'Цветы',i:'🌸',d:'С клумбы. Свежие — на могилу и в бальзам.'},
+seeds:{n:'Семена',i:'🌾',d:'Посадишь сегодня — соберёшь завтра.'},
+stone:{n:'Камень',i:'🪨',d:'Для добротных каменных могил (ур. 2).'},
+marble:{n:'Мрамор',i:'🪦',d:'Дорогая роскошь. Могилы ур. 3 для особых постояльцев.'},
+water:{n:'Вода',i:'💧',d:'Для растворов, чернил и бальзама.'},
+coffee:{n:'Кофе',i:'☕',d:'+10 энергии. Густав варит на славу.'},
+balsam:{n:'Бальзам',i:'🧴',d:'Ароматная мазь для бальзамирования: +3 к качеству похорон.'},
+elixir:{n:'Эликсир',i:'⚗️',d:'+25 энергии при употреблении. Настой на цветах и родниковой воде — совесть чиста.'}};
+const INV=['fat','wax','candle','thread','bones','flour','fertilizer','blood','ink','brain','skull','flesh','flowers','seeds','stone','marble','water','coffee','balsam','elixir'];
+const TECHS=[
+{id:'trade',n:'Торговый нюх',cost:4,d:'Продажа на рынке дороже на 15%.',f:'Густав: «У тебя глаз намётан, смотритель».'},
+{id:'ergo',n:'Эргономика',cost:4,d:'Копка земли: 6⚡ вместо 8⚡.',f:'Лопата с удобной рукоятью — половина успеха.'},
+{id:'rituals',n:'Утренние ритуалы',cost:5,d:'Максимум энергии +10.',f:'Растяжка, холодная вода и мысль о вечном.'},
+{id:'oven',n:'Печной мастер',cost:6,d:'Своя печь: воск без услуг Густава.',f:'Печь дядюшки ещё дышит — надо лишь раздуть.'},
+{id:'orator',n:'Оратор',cost:6,d:'Пожертвования дают двойную репутацию.',f:'Ты научился говорить так, что слушают даже ворон.'},
+{id:'stone',n:'Каменное дело',cost:8,d:'Открывает каменные могилы (ур. 2).',f:'Каменщик из соседней деревни поделился секретом.'},
+{id:'marble',n:'Мраморный резец',cost:14,d:'Мраморные могилы (ур. 3), мрамор дешевле.',f:'Резец поёт, стружка летит, вдова плачет от красоты.'},
+{id:'accountant',n:'Бухгалтерия',cost:8,d:'+2 монеты в день за каждую занятую могилу.',f:'Покойники платят исправно — главное, не опаздывать с бумагами.'},
+{id:'alchemy1',n:'Алхимия I',cost:8,d:'Лаборатория: изучение мозгов и чернила.',f:'Реторты, колбы и запах серы. Наука требует жертв.'},
+{id:'alchemy2',n:'Алхимия II',cost:12,d:'Эликсир энергии и бальзам в лаборатории.',f:'Дядюшка оставил недописанный трактат. Ты его закончишь.'},
+{id:'logistics',n:'Логистика',cost:10,d:'Второе место в морге.',f:'Стеллаж, накидка и уважение к очереди.'},
+{id:'gentle',n:'Тихие руки',cost:6,d:'Вскрытие: 1⚡ вместо 2⚡.',f:'Ты двигаешься так, что будильник не завидует.'},
+{id:'gardener',n:'Садовник',cost:5,d:'+1 цветок с каждого сбора.',f:'Клумба зашептала, что хочет жить.'},
+{id:'agro',n:'Агрономия',cost:9,d:'Удобрение даёт вдвое больше цветов.',f:'Кости в землю — цветы в руки. Круговорот.'},
+{id:'diplomat',n:'Дипломатия',cost:7,d:'Прогнать бродягу без потери репутации.',f:'Иногда вместо каши нужен лишь твёрдый взгляд.'},
+{id:'candlemaster',n:'Мастер свечей',cost:11,d:'+3 монеты к цене каждой свечи.',f:'Фитиль ровный, воск чистый — витринное качество.'}];
+const GRAVE_NAMES=['Агапит','Феодора','Марфа','Прохор','Устинья','Савелий','Клеопатра','Захар','Пелагея','Тихон','Агафья','Ерофей','Василиса','Гордей','Софрон','Лукерья','Пантелей','Дарья','Серафим','Евдокия'];
+const ACH=[
+{id:'a1',n:'Первая страничка',d:'Провести первые похороны'},
+{id:'a2',n:'Десятый постоялец',d:'10 похорон'},
+{id:'a3',n:'Свечной магнат',d:'Продать 20 свечей'},
+{id:'a4',n:'Учёный',d:'Накопить 50 науки за всё время'},
+{id:'a5',n:'Образцовые могилы',d:'5 могил мрамора'},
+{id:'a6',n:'Друг ворона',d:'5 выполненных заказов ворона'},
+{id:'a7',n:'Зелёные пальцы',d:'Собрать 20 цветов'},
+{id:'a8',n:'Старожил',d:'Прожить 30 дней'},
+{id:'a9',n:'Милосердие',d:'Накормить бродягу'},
+{id:'a10',n:'Эрудит',d:'Изучить все технологии'},
+{id:'a11',n:'Тайник',d:'Иметь 500 монет разом'},
+{id:'a12',n:'Образцовое кладбище',d:'Достичь 100 репутации'}];
+const GUSTAV_LINES=['Густав вытирает прилавок. «Свечи нынче в цене, смотритель. Люди боятся темноты, а тьма — вечный бизнес».','«Слыхал? У епархии новые инспекторы. Ходят с бумажками и дурным настроением».','Густав щурится: «Кофе — священный напиток. Дороже только отпевание».','«Плоть беру по строгим правилам: не глядя и без вопросов». Он загадочно улыбается.','«Мрамор подорожал. Война где-то далеко, а камень, как всегда, рядом».','Густав наливает тебе кофе без спроса. «За счёт заведения. Ты единственный клиент, который не спорит».',
+'«Слыхал про коллекционера из города? Скупает черепа. Платит как за реликвию, смотрит как на святыню. Не спрашивай, что он с ними делает».',
+'Густав протирает очки краем фартука. «Инспектор опять заходил. Дрожащие руки у человека, знаешь ли. То ли кофе, то ли совесть».',
+'«Свеча на дорожку? Бери, бери. На дорожку всегда бери — самый ходовой товар, между нами». ',
+'Он ставит на прилавок кофемолку с зазубренной ручкой. «Тёткина. Мелит до сих пор. Иногда мне кажется, что она мелит и ночь тоже».',
+'Густав долго смотрит на твои руки. «Работяга. Земля такую хватку ценит. И я ценю, но скидки это не отменяет»'];
+const RAVEN_LINES=['Ворон важно расхаживает по ограде, будто он тут смотритель, а ты — ассистент.','Ворон склоняет голову набок. В его взгляде читается: «Дела, у тебя дела».','Где-то ухнула сова. Ворон сделал вид, что не испугался.','Ворон принёс в клюве блестящую пуговицу и оставил на подоконнике. Комплимент? Плата? Знак?',
+'Ворон восседает на ограде, как на троне. Коронацию никто не объявлял, но претензии налицо.',
+'Он сритчал что-то похожее на «работать» и вылетел за ограду. Царство требует надзора.',
+'Сегодня ворон деловито прошагал мимо морга, заглянул внутрь и вышел с видом ревизора. Отчёт не представлен.',
+'У морга копошится крот. Ворон наблюдает за ним с терпением рыбака: так и этак — гость.',
+'Ворон уронил перо тебе под ноги. Не поднимай. Считай, что подписал договор о ненападении.',
+'Ворон прочирикал один раз, коротко. По всем приметам — добрый знак. По вороньиным — просто скучно.'];
+
+const BURIAL_LINES=['Кучер бросил «Держи, смотритель» и исчез, не дожидаясь квитанции.',
+'Свеча на могиле горит ровно — хороший знак. Ветер вроде бы и есть, но свеча не дрогнула.',
+'Ворон подходил и отходил трижды, будто сверял имя с внутренним списком.',
+'Деревенские девочки положили цветок поверх бугра. Могла быть и твоя могила — но пока нет.',
+'Густав через день рассказал всем, что похороны были «достойными». Реклама работает и в этом ремесле.',
+'Земля легла мягко, как будто ждала.',
+'Отец Серапион мелькнул на границе кладбища, перекрестился издали и ушёл, ничего не сказав'];
+const LOGOS=[
+'Первый день на новом месте. Дядюшкино кладбище досталось тебе вместе с долгами, лопатой и кое-какой репутацией.',
+'Деревня смотрит косо: новый смотритель — это всегда вопрос. Докажи делом.',
+'Густав из лавки шепнул: «Главное, не поднимай цены резко. Деревня всё помнит».',
+'Свежая могила пахнет землёй и смирением. Работа сделана — совесть чиста.',
+'Ворон сегодня наблюдал за тобой с ветки ивы. Как будто оценивал.',
+'Ночь прошла спокойно. Никто не стучался в ворота — и слава богу.',
+'С рассветом проехала цирковая повозка. Паяц махнул тебе рукой, и ты почему-то помахал в ответ. От кладбищенской тишины так легко радуешься мелочам.',
+'Ночью над кладбищем пролетал аист. Дурная примета для гробовщика? Вряд ли. Просто птица заблудилась.',
+'На ограде висит венок без подписи. Красивый. Никто не признаётся.',
+'Утром туман лежал так плотно, что могилы проступали по одну, по другой сторону — как острова.',
+'Густав заметил, что ты выглядишь уставшим. «Пей кофе, спи на кладбище, живи вечно. Проверенный рецепт».',
+'Кузнец поспорил на кружку пива, что доживёт до ста. Ставки в деревне простые, а смерти — щедрые.',
+'Ворон срыгнул косточку на твой порог. Любовь у птиц вообще странная.'];
+// ================= СОСТОЯНИЕ =================
+let S=null;
+function defaultState(){return{v:5,sound:true,day:1,coins:40,energy:40,maxEnergy:40,rep:0,science:0,res:{fat:2,thread:2,seeds:2},gravesOpened:6,graves:Array.from({length:20},()=>({level:1,occ:null,deco:{}})),corpses:[],market:{candle:12,wax:7,fertilizer:10,ink:14,skull:30,flesh:4,marble:35},techs:{},ach:{},crow:{active:false,order:null,done:0},plant:{owned:false,planted:false,readyDay:0,fert:false},donatedToday:0,rain:false,log:[],stats:{buried:0,candlesSold:0,scienceTotal:0,flowers:0,vagrantFed:false},endless:false}}
+function save(){try{localStorage.setItem('vp5_save',JSON.stringify(S))}catch(e){}}
+function load(){try{const r=localStorage.getItem('vp5_save');if(r){const s=JSON.parse(r);if(s.v===5){S=s;if(S.sound===undefined)S.sound=true;return true}}}catch(e){}return false}
+// ================= ПОМОЩНИКИ =================
+function have(res){return (S.res[res]||0)}
+function addRes(res,n){S.res[res]=(S.res[res]||0)+n;render()}
+function spend(res,n){if(have(res)>=n){S.res[res]-=n;return true}return false}
+function checkAch(){const t=(id)=>{if(!S.ach[id]){S.ach[id]=true;const a=ACH.find(x=>x.id===id);toast('🏆 Достижение: '+a.n+'!');sfx('ach');log('Получено достижение: '+a.n)}};
+if(S.stats.buried>=1)t('a1');if(S.stats.buried>=10)t('a2');if(S.stats.candlesSold>=20)t('a3');if(S.stats.scienceTotal>=50)t('a4');
+if(S.graves.filter(g=>g.level===3).length>=5)t('a5');if(S.crow.done>=5)t('a6');if(S.stats.flowers>=20)t('a7');if(S.day>=30)t('a8');if(S.stats.vagrantFed)t('a9');
+if(Object.keys(S.techs).length>=TECHS.length)t('a10');if(S.coins>=500)t('a11');if(S.rep>=100)t('a12');if(S.rep>=100&&!S.endless){S.endless=true;showVictory()}}
+function log(text){S.log.unshift({day:S.day,text:text});if(S.log.length>120)S.log.pop()}
+function toast(msg){const d=document.createElement('div');d.className='toast';d.innerHTML=msg;document.getElementById('toastRoot').appendChild(d);setTimeout(()=>d.remove(),3800)}
+function floatTxt(txt){const e=document.createElement('div');e.className='float';e.textContent=txt;e.style.right=(30+Math.random()*80)+'px';e.style.bottom='90px';document.body.appendChild(e);setTimeout(()=>e.remove(),1100)}
+let actx=null;
+function sfx(type){if(!S||!S.sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.connect(g);g.connect(actx.destination);const f={coin:880,dig:220,ach:660,bury:330,bad:150}[type]||440;o.frequency.value=f;g.gain.value=.04;o.start();g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.18);o.stop(actx.currentTime+.2)}catch(e){}}
+function toggleSound(){S.sound=!S.sound;document.getElementById('sndBtn').textContent=S.sound?'🔔':'🔕'}
+function fmt(n){return Math.round(n)}
+// ================= РЕНДЕР =================
+const TABS=[['graveyard','🪦 Кладбище'],['morgue','⚰️ Морг'],['craft','🛠 Ремесло'],['lab','⚗️ Лаборатория'],['market','📈 Рынок'],['gustav','🏪 Густав'],['church','⛪ Церковь'],['crow','🐦‍⬛ Ворон'],['techs','📚 Технологии'],['ach','🏆 Достижения'],['log','📖 Журнал']];
+let curTab='graveyard';
+function renderTabs(){document.getElementById('tabs').innerHTML=TABS.map(t=>{const id=t[0];let b='';if(id==='morgue'){const bad=S.corpses.filter(c=>c.days>2).length;if(bad)b='<span class="badge">'+bad+'</span>'}
+if(id==='crow'&&S.crow.active&&S.crow.order&&orderReady())b='<span class="badge ok">✓</span>';
+if(id==='techs'){const can=TECHS.filter(t=>!S.techs[t.id]&&S.science>=t.cost).length;if(can)b='<span class="badge ok">'+can+'</span>'}
+return '<div class="tab'+(curTab===id?' active':'')+'" onclick="openTab(\''+id+'\')">'+t[1]+b+'</div>'}).join('')}
+function openTab(id){curTab=id;sfx('dig');render()}
+function renderTop(){const chips=[['coins','💰'],['rep','⭐ '+fmt(S.rep)+'/100'],['science','📜']];
+let h=chips.map(c=>'<div class="chip" title="'+(ITEMS[c[0]]?ITEMS[c[0]].d:'')+'">'+c[1]+' <span class="val">'+fmt(S[c[0]])+'</span></div>').join('');
+h+='<div class="chip" title="Энергия: расходуется на работы">'+ITEMS.energy.i+' <div id="energybar"><div id="energyfill" style="width:'+(S.energy/S.maxEnergy*100)+'%"></div></div> <span class="val">'+S.energy+'/'+S.maxEnergy+'</span></div>';
+h+=INV.filter(r=>S.res[r]>0).map(r=>'<div class="chip" title="'+ITEMS[r].n+': '+ITEMS[r].d+'">'+ITEMS[r].i+' '+fmt(S.res[r])+'</div>').join('');
+if(S.rain)h+='<div class="chip" title="Дождь: копка дороже">🌧️ Дождь</div>';
+h+='<div class="spacer"></div><div class="chip"> День '+S.day+'</div><button id="newday" onclick="newDay()">🌙 Новый день</button>';
+document.getElementById('top').innerHTML=h}
+function whyNeed(list){const miss=list.filter(x=>{const r=x[0];if(r==='e')return S.energy<x[1];return have(r)<x[1]});if(!miss.length)return null;return 'Не хватает: '+miss.map(m=>m[0]==='e'?ITEMS.energy.i+' '+m[1]+'/'+S.energy:ITEMS[m[0]].i+' '+m[1]+'/'+have(m[0])).join(', ')}
+function needCheck(list){const w=whyNeed(list);if(w){return{ok:false,w}}return{ok:true}}
+function btn(id,label,cls,need,onclick,extra){const c=needCheck(need);const dis=c.ok?'':'disabled';return '<button class="btn '+(cls||'')+'" '+dis+(onclick?' onclick="'+onclick+'"':'')+'>'+label+'</button>'+(c.ok?'':'<div class="why">'+c.w+'</div>')+(extra||'')}
+function render(){renderTabs();renderTop();const fns={graveyard:tGraveyard,morgue:tMorgue,craft:tCraft,lab:tLab,market:tMarket,gustav:tGustav,church:tChurch,crow:tCrow,techs:tTechs,ach:tAch,log:tLog};document.getElementById('content').innerHTML=(fns[curTab]||tGraveyard)();checkAch();save()}
+// ================= ВКЛАДКИ =================
+function tGraveyard(){let h='<h2>Кладбище</h2>';
+h+='<p class="sub">Тут лежат твои соседи и растёт твоя репутация. Земля вокруг — вечный источник костей, камней и жира: копай, но помни про энергию.</p>';
+const digCost=Math.ceil((S.techs.ergo?6:8)*(S.rain?1.5:1));
+h+='<div class="card" style="margin-bottom:14px"><h4>⛏ Работа на участке</h4><p class="meta">Лопата, роса и вечная земля. Костяшки, камни и жир — твои.</p>';
+h+=btn('dig','Копать землю ('+digCost+'⚡)','gold',[['e',digCost]],'dig()');h+='<div class="flavor" id="digflavor"></div></div>';
+if(!S.plant.owned){h+='<div class="card" style="margin-bottom:14px"><h4>🌸 Заброшенная клумба</h4><p class="meta">За оградой заросла бурьян. Приведи в порядок — и она отблагодарит цветами.</p>'+btn('buybed','Обустроить клумбу (30💰)','gold',[['coins',30]],'buyBed()')+'</div>'}
+else{h+='<div class="card" style="margin-bottom:14px"><h4>🌸 Клумба</h4><p class="meta">';
+if(S.plant.planted&&S.day>=S.plant.readyDay)h+='Цветы созрели! Аромат стоит до самых ворот.';
+else if(S.plant.planted)h+='Семена в земле. Созреют к дню '+S.plant.readyDay+'.';
+else h+='Грядка пуста. Посади семена — соберёшь цветы на следующий день.';
+h+='</p>';
+if(!S.plant.planted){h+=btn('plant','Посадить (1🌾, 3⚡)',null,[['seeds',1],['e',3]],'plantSeed()');if(have('fertilizer'))h+=btn('fert','Удобрить (1🌱)',null,[['fertilizer',1]],'fertBed()')+(S.plant.fert?' <span class="trend up">уже удобрено ✓</span>':'')}
+else if(S.day>=S.plant.readyDay){h+=btn('harv','Собрать урожай 🌸','green',[],'harvest()')}
+h+='</div>'}
+h+='<div class="row" style="margin-bottom:10px"><span class="sub" style="margin:0">Участков: '+S.gravesOpened+'/20.</span>'+(S.gravesOpened>=20?'<span class="sub" style="margin:0">Простор достигнут — земля вся расчищена.</span>':btn('buy','Расчистить участок (30💰)','gold',[['coins',30]],'buyGrave()'))+'</div>';
+h+='<div class="grid">'+S.graves.slice(0,S.gravesOpened).map((g,i)=>{const lvl=['Деревянная','Каменная','Мраморная'][g.level-1];
+const dec=Object.keys(g.deco).length?'<div class="deco">'+(g.deco.candle?'🕯'.repeat(Math.min(g.deco.candle,3)):'')+(g.deco.flowers?'🌸':'')+(g.deco.balsam?'🧴':'')+'</div>':'<div class="deco" style="opacity:.3">— пусто —</div>';
+let acts='';
+if(g.occ){acts='<p class="meta">Покоится: '+g.occ+'</p>'}
+else{acts='<div class="row">';
+if(S.techs.stone&&g.level===1)acts+=btn('u2','Камень (3🪨)',null,[['stone',3]],'upgradeGrave('+i+',2)');
+if(S.techs.marble&&g.level<3)acts+=btn('u3','Мрамор (2🪦)',null,[['marble',2]],'upgradeGrave('+i+',3)');
+acts+=btn('b'+i,'Похороны ✝','gold',[],'openBurial('+i+')')+'</div>'}
+return '<div class="card'+(g.occ?' occupied':'')+'"><h4>Могила №'+(i+1)+' <span class="trend" style="opacity:.7">('+lvl+')</span></h4>'+dec+acts+'</div>'}).join('')+'</div>';
+if(S.corpses.length)h+='<p class="flavor">В морге ждут: '+S.corpses.length+' '+(S.corpses.length===1?'тело':'тела')+'. Не тяни с похоронами — мёртвые тоже ценят пунктуальность.</p>';
+return h}
+function tMorgue(){const cap=S.techs.logistics?2:1;
+let h='<h2>Морг</h2><p class="sub">Холодный подвал под церковью. Тела ждут своего часа, но недолго: через два дня они начнут портиться, а инспектор — делать записи в блокнот.</p>';
+h+='<p class="meta">Мест: '+S.corpses.length+'/'+cap+'. Вскрытие приносит ресурсы и +1 к качеству будущих похорон за каждую процедуру.</p>';
+if(!S.corpses.length)h+='<div class="flavor">Морг пуст. Лавка скрипит от сквозняка, и даже паучок в углу выглядит скучающим.</div>';
+h+='<div class="grid">'+S.corpses.map((c,i)=>{
+const star='★'.repeat(c.stars)+'☆'.repeat(5-c.stars);
+const q=c.extracted?'+Процедуры: +'+c.extracted+' к качеству':'';
+const warn=c.days>2?'<span class="trend down">⚠ Портится! Дней сверх срока: '+(c.days-2)+'</span>':'<span class="trend">Свежесть: ещё '+Math.max(0,2-c.days)+' дн.</span>';
+const ex=btn('x'+i,'Снять череп 💀','',[['e',S.techs.gentle?1:2]],'extract('+i+',\'skull\')')+
+btn('x'+i,'Извлечь мозг 🧠','',[['e',S.techs.gentle?1:2]],'extract('+i+',\'brain\')')+
+btn('x'+i,'Слить кровь 🩸','',[['e',S.techs.gentle?1:2]],'extract('+i+',\'blood\')')+
+btn('x'+i,'Собрать жир 🫗','',[['e',S.techs.gentle?1:2]],'extract('+i+',\'fat\')')+
+btn('x'+i,'Вынуть кости 🦴','',[['e',S.techs.gentle?1:2]],'extract('+i+',\'bones\')')+
+btn('x'+i,'Срезать плоть 🥩','',[['e',S.techs.gentle?1:2]],'extract('+i+',\'flesh\')');
+return '<div class="card"><h4>Тело: <span style="color:var(--gold)">'+star+'</span></h4><p class="meta">'+q+'</p>'+warn+'<div class="row" style="margin-top:6px">'+ex+'</div></div>'}).join('')+'</div>';
+return h}
+function tCraft(){let h='<h2>Ремесло</h2><p class="sub">Верстак, ступка и — если повезёт с технологией — собственная печь. Руки помнят работу дядюшки, голова — уже твоя.</p>';
+if(S.techs.oven)h+='<div class="card" style="margin-bottom:12px"><h4>🔥 Печь (своя)</h4><p class="meta">Жир ×2 → Воск ×1. Дым пахнет мёдом и чуть-чуть тайной.</p>'+btn('w','Перетопить жир','gold',[['fat',2],['e',3]],'makeWax()')+'</div>';
+else h+='<div class="card" style="margin-bottom:12px"><h4>🔥 Печь (сломана)</h4><p class="meta">Дядюшкина печь стоит холодная. Изучи «Печной мастер», чтобы топить самому, — или плати Густаву.</p></div>';
+h+='<div class="card" style="margin-bottom:12px"><h4>🕯 Верстак</h4><p class="meta">Воск ×1 + Нить ×1 → Свеча ×1.</p>'+btn('c','Сделать свечу','gold',[['wax',1],['thread',1],['e',3]],'makeCandle()')+'</div>';
+h+='<div class="card" style="margin-bottom:12px"><h4>🥣 Ступка</h4><p class="meta">Кости ×2 → Костная мука ×1.</p>'+btn('f','Молоть кости','gold',[['bones',2],['e',2]],'makeFlour()')+'</div>';
+h+='<div class="card" style="margin-bottom:12px"><h4>🌱 Садовый стол</h4><p class="meta">Костная мука ×2 + Вода ×1 → Удобрение ×1. Кости уходят в землю — и это честно.</p>'+btn('fr','Смешать удобрение','gold',[['flour',2],['water',1],['e',2]],'makeFert()')+'</div>';
+h+='<h3>Употребить</h3><div class="row">';
+if(have('coffee'))h+=btn('cf','☕ Кофе (+10⚡)','green',[],'useItem(\'coffee\')');
+if(have('elixir'))h+=btn('el','⚗️ Эликсир (+25⚡)','green',[],'useItem(\'elixir\')');
+if(!have('coffee')&&!have('elixir'))h+='<span class="sub" style="margin:0">Ничего бодрящего под рукой. Загляни к Густаву.</span>';
+h+='</div>';return h}
+function tLab(){if(!S.techs.alchemy1)return '<h2>Лаборатория</h2><p class="sub">Дверь заперта. За ней — пыль, реторты и трактат дядюшки. Изучи технологию «Алхимия I».</p>';
+let h='<h2>Лаборатория</h2><p class="sub">Колбы тихо булькают сами собой — дядюшка ставил их так, что не затихают и по сей день.</p>';
+h+='<div class="grid">';
+h+='<div class="card"><h4>📜 Изучить мозг</h4><p class="meta">Мозг ×1 → Наука ×3. Незваные мысли становятся знаниями.</p>'+btn('s','Изучить','gold',[['brain',1],['e',4]],'studyBrain()')+'</div>';
+h+='<div class="card"><h4>🖋 Чернила</h4><p class="meta">Кровь ×1 + Вода ×1 → Чернила ×1.</p>'+btn('i','Сварить чернила','gold',[['blood',1],['water',1],['e',2]],'makeInk()')+'</div>';
+if(S.techs.alchemy2){
+h+='<div class="card"><h4>⚗ Эликсир</h4><p class="meta">Цветы ×2 + Вода ×2 → Эликсир ×1 (+25⚡).</p>'+btn('e','Сварить эликсир','gold',[['flowers',2],['water',2],['e',3]],'makeElixir()')+'</div>';
+h+='<div class="card"><h4>🧴 Бальзам</h4><p class="meta">Вода ×2 + Цветы ×2 → Бальзам ×1 (+3 к похоронам).</p>'+btn('b','Сварить бальзам','gold',[['water',2],['flowers',2],['e',3]],'makeBalsam()')+'</div>'}
+else h+='<div class="card tech-done"><h4>⚗ Эликсир</h4><p class="meta">Нужна технология «Алхимия II». Трактат дядюшки обрывается на середине страницы.</p></div>';
+h+='</div>';return h}
+function sellPrice(it){let p=S.market[it]||0;if(S.techs.trade)p*=1.15;if(it==='candle'&&S.techs.candlemaster)p+=3;return p}
+function tMarket(){let h='<h2>Рынок</h2><p class="sub">Цены дышат: день туда, день сюда. Смотри на стрелки — копи товар и продавай на пике. Торговля — тоже ремесло.</p>';
+h+='<div class="grid">'+['candle','wax','fertilizer','ink','skull','brain','flesh'].map(it=>{const p=sellPrice(it);const prev=S.marketPrev&&S.marketPrev[it]!=null?S.marketPrev[it]:p;const t=p>prev?'<span class="trend up">▲</span>':p<prev?'<span class="trend down">▼</span>':'<span class="trend">—</span>';
+return '<div class="card"><h4>'+ITEMS[it].i+' '+ITEMS[it].n+'</h4><p class="meta">'+ITEMS[it].d+'</p><p>Цена: <span class="price">'+p.toFixed(1)+'💰</span> '+t+'</p><div class="row">'+btn('s'+it,'Продать 1','',[[it,1]],'sellItem(\''+it+'\')')+btn('s5'+it,'Продать 5','',[[it,5]],'sellItem(\''+it+'\',5)')+'</div></div>'}).join('')+'</div>';
+return h}
+function tGustav(){const line=GUSTAV_LINES[Math.floor(Math.random()*GUSTAV_LINES.length)];
+let h='<h2>Лавка Густава</h2><p class="sub">Лавка пахнет кофе, вощиной и лёгкой интригой. Густав знает всё обо всех — и половину про тебя.</p><p class="flavor">«'+line+'»</p>';
+h+='<h3>Купить</h3><div class="grid">';
+const buys=[['thread',3,'Рулон нити'],['stone',8,'Камень'],['marble',S.techs.marble?22:25,'Мрамор'],['water',2,'Вода'],['coffee',10,'Кофе'],['seeds',5,'Семена'],['fat',6,'Жир про запас']];
+h+=buys.map(b=>'<div class="card"><h4>'+ITEMS[b[0]].i+' '+b[2]+'</h4><p class="meta">'+ITEMS[b[0]].d+'</p><div class="row">'+btn('b'+b[0],'Купить ×1 ('+b[1]+'💰)','gold',[['coins',b[1]]],'buyRes(\''+b[0]+'\','+b[1]+')')+'</div></div>').join('');
+h+='</div><h3>Продать</h3><p class="sub">Густав принимает всё, кроме упрёков. Цены скромнее рынка, зато без очередей.</p><div class="row">';
+['candle','wax','flesh','bones','skull'].forEach(it=>{if(have(it))h+=btn('s'+it,'Продать '+ITEMS[it].n+' ×1 ('+(sellPrice(it)*.8).toFixed(1)+'💰)',null,[[it,1]],'sellGustav(\''+it+'\')')});
+if(!['candle','wax','flesh','bones','skull'].some(it=>have(it)))h+='<span class="sub" style="margin:0">Продавать пока нечего.</span>';
+if(S.techs.oven)return h;
+return h+'<h3>Услуги</h3><div class="card"><h4>🔥 Перетопка жира</h4><p class="meta">Жир ×2 + 4💰 → Воск ×1. Густав одалживает свою печь за скромную плату.</p>'+btn('wax','Перетопить','gold',[['fat',2],['coins',4],['e',3]],'makeWaxGustav()')+'</div>'}
+function tChurch(){let h='<h2>Церковь</h2><p class="sub">Отец Серапион приветливо кивает, но взгляд у него бухгалтерский: репутация — валюта епархии.</p>';
+h+='<div class="card" style="margin-bottom:12px"><h4>🕯 Пожертвовать (20💰 → +'+(S.techs.orator?2:1)+'⭐)</h4><p class="meta">Сегодня уже пожертвовано: '+S.donatedToday+'/5.</p>'+btn('don','Пожертвовать','gold',[['coins',20]],'donate()')+'</div>';
+h+='<div class="card"><h4>📖 Проповедь (5⚡ → +2📜)</h4><p class="meta">Слушатели кивают, вороны на крыше вторят. Наука — это тоже вера, только с таблицами.</p>'+btn('pr','Читать проповедь','gold',[['e',5]],'preach()')+'</div>';
+return h}
+function orderReady(){const o=S.crow.order;if(!o)return false;return Object.keys(o.need).every(r=>have(r)>=o.need[r])}
+function tCrow(){if(!S.crow.active)return '<h2>Ворон</h2><p class="sub">На ограде сидит важная птица и смотрит сквозь тебя. Пока она считает, что ты мелкая сошка, заказов не будет. Набери 10 репутации — и она присмотрится.</p>';
+let h='<h2>Ворон</h2><p class="flavor">'+RAVEN_LINES[Math.floor(Math.random()*RAVEN_LINES.length)]+'</p>';
+if(!S.crow.order)h+='<p class="sub">Ворон приносит заказы время от времени. Пока — только карает взглядом.</p>';
+else{const o=S.crow.order;const need=Object.keys(o.need).map(r=>ITEMS[r].i+' '+o.need[r]+'/'+have(r)).join(', ');
+h+='<div class="card"><h4>📦 Заказ: «'+o.n+'»</h4><p class="meta">Нужно: '+need+'</p><p class="meta">Награда: '+Object.keys(o.reward).map(r=>(r==='coins'?'💰':r==='science'?'📜':r==='rep'?'⭐':'')+' '+o.reward[r]).join(', ')+'</p>';
+h+=btn('do','Сдать заказ','green',[],'doOrder()');h+='</div>'}
+return h}
+function tTechs(){let h='<h2>Технологии</h2><p class="sub">Наука — '+S.science+'📜. Трактат дядюшки открывается страница за страницей.</p><div class="grid">';
+h+=TECHS.map(t=>{const owned=S.techs[t.id];return '<div class="card'+(owned?' tech-done':'')+'"><h4>'+t.n+'</h4><p class="meta">'+t.d+'</p><p class="flavor">'+t.f+'</p>'+(owned?'<span class="trend up">✓ Изучено</span>':btn('t'+t.id,'Изучить ('+t.cost+'📜)','gold',[['science',t.cost]],'learn(\''+t.id+'\')'))+'</div>'}).join('');
+return h+'</div>'}
+function tAch(){let h='<h2>Достижения</h2><p class="sub">Мелкие радости большой смотрительской карьеры.</p><div class="grid">';
+h+=ACH.map(a=>{const ok=S.ach[a.id];return '<div class="card'+(ok?' tech-done':'')+'"><h4>'+(ok?'🏆 ':'🔒 ')+a.n+'</h4><p class="meta">'+a.d+'</p></div>'}).join('');
+return h+'</div>'}
+function tLog(){let h='<h2>Журнал смотрителя</h2><p class="sub">Дядюшкина тетрадь в кляксах. Ты продолжаешь писать поверх — как и положено наследнику.</p>';
+h+=S.log.map(l=>'<div class="card" style="margin-bottom:8px"><h4 style="font-size:13px;color:var(--dim)">День '+l.day+'</h4><p class="meta" style="font-size:13px">'+l.text+'</p></div>').join('');
+return h}
+// ================= ДЕЙСТВИЯ =================
+function dig(){const cost=Math.ceil((S.techs.ergo?6:8)*(S.rain?1.5:1));if(S.energy<cost)return;S.energy-=cost;
+const roll=Math.random();let msg='';
+if(roll<.45){const n=1+Math.floor(Math.random()*2);addRes('bones',n);msg='Лопата звякнула: кости, аккуратно уложенные кем-то давно. ×'+n;sfx('dig')}
+else if(roll<.70){addRes('stone',1);msg='В пласте глины — камень. Тяжёлый, честный, надёжный.';sfx('dig')}
+else if(roll<.88){addRes('fat',1);msg='Грунт отдаёт тёмный жир. Не будем уточнять чей — осень, что взять.';sfx('dig')}
+else if(roll<.92){S.coins+=3;msg='Оловянная ложка с погнутой пуговицей. Густав берёт такой лом по три монеты — не спрашивай, зачем ему столько ложек.';sfx('coin')}
+else{S.coins+=2;msg='Найдена горстка старых монет. Дядюшка прятал по карманам всей округи.';sfx('coin')}
+const f=document.getElementById('digflavor');if(f)f.textContent=msg;toast(msg);floatTxt('−'+cost+'⚡');checkAch();render()}
+function makeWax(){if(!spendE(3))return;if(!spend('fat',2))return;addRes('wax',1);toast('Воск готов. Печь доволен.');render()}
+function makeWaxGustav(){if(!spendE(3))return;if(!spend('fat',2))return;if(!spend('coins',4))return;addRes('wax',1);toast('Густав: «Воск как слеза». Справились.');render()}
+function makeCandle(){if(!spendE(3))return;if(!spend('wax',1))return;if(!spend('thread',1))return;addRes('candle',1);sfx('coin');toast('Свеча ровная и честная. Таких в деревне уважают.');render()}
+function makeFlour(){if(!spendE(2))return;if(!spend('bones',2))return;addRes('flour',1);toast('Костная мука готова.');render()}
+function makeFert(){if(!spendE(2))return;if(!spend('flour',2))return;if(!spend('water',1))return;addRes('fertilizer',1);toast('Удобрение готово. Клумба будет в восторге.');render()}
+function studyBrain(){if(!spendE(4))return;if(!spend('brain',1))return;S.science+=3;S.stats.scienceTotal+=3;sfx('ach');toast('Мозг изучен: +3📜. Чужие мысли стали твоими.');render()}
+function makeInk(){if(!spendE(2))return;if(!spend('blood',1))return;if(!spend('water',1))return;addRes('ink',1);toast('Чернила густые, как совесть при жизни.');render()}
+function makeElixir(){if(!spendE(3))return;if(!spend('flowers',2))return;if(!spend('water',2))return;addRes('elixir',1);toast('Эликсир готов. Пахнет мятой — и только мятой.');render()}
+function makeBalsam(){if(!spendE(3))return;if(!spend('water',2))return;if(!spend('flowers',2))return;addRes('balsam',1);toast('Бальзам готов. Аромат — достойный последнего пути.');render()}
+function useItem(it){if(it==='coffee'){if(!spend('coffee',1))return;S.energy=Math.min(S.maxEnergy,S.energy+10);floatTxt('+10⚡')}
+if(it==='elixir'){if(!spend('elixir',1))return;S.energy=Math.min(S.maxEnergy,S.energy+25);floatTxt('+25⚡')}
+toast('Приятно. Голова ясная, руки лёгкие.');render()}
+function spendE(n){if(S.energy<n)return false;S.energy-=n;return true}
+function sellItem(it,n){n=n||1;if(!spend(it,n))return;const p=sellPrice(it)*n;S.coins+=p;if(it==='candle')S.stats.candlesSold+=n;sfx('coin');floatTxt('+'+fmt(p)+'💰');toast('Продано: '+ITEMS[it].n+' ×'+n+' за '+fmt(p)+'💰');checkAch();render()}
+function sellGustav(it){if(!spend(it,1))return;const p=Math.round(sellPrice(it)*.8);S.coins+=p;if(it==='candle')S.stats.candlesSold++;sfx('coin');floatTxt('+'+p+'💰');render()}
+function buyRes(it,p){if(!spend('coins',p))return;addRes(it,1);sfx('coin');toast('Куплено: '+ITEMS[it].n);render()}
+function buyGrave(){if(S.gravesOpened>=20){toast('Простор достигнут: все 20 участков уже расчистены.');return}if(!spend('coins',30))return;S.gravesOpened++;log('Расчищен новый участок №'+S.gravesOpened+'. Земля впервые за годы встрепенулась.');toast('Новый участок расчищен!');sfx('dig');render()}
+function buyBed(){if(!spend('coins',30))return;S.plant.owned=true;log('Обустроена клумба за оградой. Земля там мягкая, тёплая.');toast('Клумба готова к посеву!');render()}
+function plantSeed(){if(!spendE(3))return;if(!spend('seeds',1))return;S.plant.planted=true;S.plant.readyDay=S.day+1;toast('Семена в земле. До завтра.');render()}
+function fertBed(){if(!spend('fertilizer',1))return;S.plant.fert=true;toast('Клумба удобрена. Урожай будет щедрым.');render()}
+function harvest(){S.plant.planted=false;let n=2+(S.techs.gardener?1:0);if(S.plant.fert){n+=S.techs.agro?4:2;S.plant.fert=false}S.stats.flowers+=n;addRes('flowers',n);sfx('ach');toast('Собрано цветов: '+n+' 🌸');checkAch();render()}
+function extract(i,res){const c=S.corpses[i];if(!c)return;if(!spendE(S.techs.gentle?1:2))return;
+if(res==='skull'){if(!c.parts.skull)return;addRes('skull',1);c.parts.skull=false}
+else if(res==='brain'){if(!c.parts.brain)return;addRes('brain',1);c.parts.brain=false}
+else if(res==='blood'){if(!c.parts.blood)return;addRes('blood',1);c.parts.blood=false}
+else if(res==='fat'){if(!c.parts.fat)return;addRes('fat',1);c.parts.fat=false}
+else if(res==='bones'){if(!c.parts.bones)return;addRes('bones',2);c.parts.bones=false}
+else if(res==='flesh'){if(!c.parts.flesh)return;addRes('flesh',1);c.parts.flesh=false}
+c.extracted=(c.extracted||0)+1;toast('Процедура завершена: +1 к качеству похорон.');render()}
+function openBurial(i){const g=S.graves[i];if(g.occ)return;
+const c=S.corpses[0];if(!c){toast('В морге нет тел — похоронить нечего. Ждём ночную повозку.');return}
+const name=GRAVE_NAMES[(S.day*7+i*3)%GRAVE_NAMES.length];
+let state={candle:0,flowers:0,balsam:0};
+function draw(){const stars='★'.repeat(c.stars)+'☆'.repeat(5-c.stars);
+const q=c.stars+(c.extracted||0)+g.level+state.candle*2+(state.flowers?2:0)+state.balsam*3;
+document.getElementById('modalRoot').innerHTML='<div class="modal-bg" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()"><h3>Похороны: '+name+'</h3><p class="flavor">Тело: '+stars+'. Извлечено процедур: '+(c.extracted||0)+'. Могила ур. '+g.level+'.</p>'+
+'<div class="row">🕯 Свечи (+'+ (state.candle*2) +'): <button class="btn" onclick="bDec(\'candle\')">−</button> '+state.candle+' <button class="btn" onclick="bInc(\'candle\')">+</button></div>'+
+'<div class="row">🌸 Цветы ×2 (+'+(state.flowers?2:0)+'): <button class="btn" onclick="bTog(\'flowers\')">'+(state.flowers?'снять':'положить')+'</button> (есть '+have('flowers')+')</div>'+
+'<div class="row">🧴 Бальзам (+'+(state.balsam*3)+'): <button class="btn" onclick="bTog(\'balsam\')">'+(state.balsam?'без':'нанести')+'</button> (есть '+have('balsam')+')</div>'+
+'<p class="flavor">Качество похорон: <b>'+q+'</b> → репутация +'+q+', монет +'+(15+q*2)+'.</p>'+
+'<button class="btn gold" onclick="doBurial('+i+',\''+name+'\')">Провести похороны ✝</button> <button class="btn" onclick="closeModal()">Отложить</button>'+
+'<p class="why" id="berr"></p></div></div>';
+window._bs=state;window._bi=i;window._bn=name}
+window._bdraw=draw;draw()}
+function bInc(k){const s=window._bs;if(k==='candle'){if(have('candle')>s.candle)s.candle++}window._bdraw()}
+function bDec(k){const s=window._bs;if(k==='candle'&&s.candle>0)s.candle--;window._bdraw()}
+function bTog(k){const s=window._bs;s[k]=s[k]?0:1;window._bdraw()}
+function doBurial(i,name){const s=window._bs,i2=window._bi;const c=S.corpses[0];
+if(s.candle>have('candle')||s.flowers>have('flowers')/2||s.balsam>have('balsam')){document.getElementById('berr').textContent='Не хватает декора. Проверь счётчики.';return}
+spend('candle',s.candle);if(s.flowers)spend('flowers',2);if(s.balsam)spend('balsam',1);
+const q=c.stars+(c.extracted||0)+S.graves[i2].level+s.candle*2+(s.flowers?2:0)+s.balsam*3;
+S.graves[i2].occ=name;S.graves[i2].deco={candle:s.candle,flowers:s.flowers?1:0,balsam:s.balsam};
+S.corpses.shift();S.coins+=15+q*2;S.rep+=q;S.stats.buried++;
+log('Похороны '+name+': качество '+q+'. '+BURIAL_LINES[Math.floor(Math.random()*BURIAL_LINES.length)]);
+toast('✝ '+name+' упокоен. Репутация +'+q+', монет +'+(15+q*2));sfx('bury');closeModal();checkAch();render()}
+function closeModal(){document.getElementById('modalRoot').innerHTML=''}
+function learn(id){const t=TECHS.find(x=>x.id===id);if(S.techs[id])return;if(S.science<t.cost)return;S.science-=t.cost;S.techs[id]=true;
+if(id==='rituals')S.maxEnergy+=10;
+log('Изучена технология: «'+t.n+'». '+t.f);toast('📚 Технология: '+t.n);sfx('ach');checkAch();render()}
+function donate(){if(S.donatedToday>=5){toast('Отец Серапион мягко намекает, что и кладбище требует внимания.');return}
+if(!spend('coins',20))return;S.donatedToday++;const r=S.techs.orator?2:1;S.rep+=r;sfx('coin');toast('Пожертвование принято: +'+r+'⭐');render()}
+function preach(){if(!spendE(5))return;S.science+=2;S.stats.scienceTotal+=2;toast('Проповедь удалась: +2📜');render()}
+function doOrder(){const o=S.crow.order;if(!o||!orderReady())return;Object.keys(o.need).forEach(r=>spend(r,o.need[r]));
+const rw=o.reward;if(rw.coins)S.coins+=rw.coins;if(rw.science){S.science+=rw.science;S.stats.scienceTotal+=rw.science}if(rw.rep)S.rep+=rw.rep;
+S.crow.order=null;S.crow.done++;log('Ворон получил своё: «'+o.n+'». Взгляд одобряющий.');toast('🐦‍⬛ Заказ сдан: '+o.n);sfx('ach');checkAch();render()}
+function crowOrderText(o){return o.n}
+// ================= СОБЫТИЯ И ДЕНЬ =================
+const CROW_ORDERS=[
+{n:'Свечи для паломников',need:{candle:5},reward:{coins:40,science:3}},
+{n:'Черепа для учёного',need:{skull:2},reward:{coins:60}},
+{n:'Цветы для вдовы',need:{flowers:6},reward:{coins:20,rep:3}},
+{n:'Чернила для нотариуса',need:{ink:3},reward:{coins:35,science:2}},
+{n:'Удобрение для фермера',need:{fertilizer:4},reward:{coins:30}}];
+function morningEvent(){const rolls=[];
+if(S.corpses.some(c=>c.days>2))rolls.push({w:3,fn:evInspector});
+rolls.push({w:2,fn:evQuiet},{w:1,fn:evRain},{w:1,fn:evPilgrims},{w:1,fn:evVagrant},{w:1,fn:evThief},{w:1,fn:evComet},{w:1,fn:evFind},{w:1,fn:evGustavDeal},{w:1,fn:evVolunteers});
+const total=rolls.reduce((a,b)=>a+b.w,0);let r=Math.random()*total;let ev=rolls[0];
+for(const it of rolls){if(r<it.w){ev=it;break}r-=it.w}
+ev.fn()}
+function evQuiet(){showEvent('Тихое утро','Утро выдалось тихим. Ворон дремлет на ограде, трава в росе, и только где-то вдалеке лает собака. Деревня живёт своей жизнью, не подозревая, сколько дел у её кладбища.','Доброе утро')}
+function evRain(){S.rain=true;showEvent('Дождь','Небо затянуло тучами. Глина размокла, лопата идёт тяжело: копка сегодня дороже по энергии. Зато клумба рада — и земля дышит.','Не тужи')}
+function evPilgrims(){const n=Math.min(have('candle'),5);if(n>0){const p=Math.round(sellPrice('candle')*1.5*n);spend('candle',n);S.coins+=p;S.stats.candlesSold+=n;showEvent('Паломники','Со стороны тракта донеслась песня — паломники идут мимо на ярмарку. Они купили у тебя '+n+' свечей по щедрой цене: +'+p+'💰. Паломники верят, что свет в пути начинается с тебя.','Славно')}
+else showEvent('Паломники','Со стороны тракта донеслась песня — паломники идут мимо на ярмарку. Они заглянули за свечами, но у тебя их нет. Вздохнули и пошли дальше: «Смотритель нынче, видать, запаслив, да не в ту сторону».','Обидно')}
+function evVagrant(){showEvent('Бродяга у ворот','У ворот стоит бродяга — грязный, но с ясным взглядом. «Хлеба бы, господин смотритель. А я тебе и помолюсь, и расскажу, что слышал в дороге».',null,[['Накормить (5💰)','feedVagrant'],['Прогнать','shooVagrant']])}
+function feedVagrant(){if(!spend('coins',5)){toast('На хлеб бродяге не хватает — всего '+have('coins')+' 💰. Придётся помолиться за себя.');return}S.rep+=2;S.stats.vagrantFed=true;log('Накормил бродягу у ворот. Он помолился — и, кажется, искренне.');toast('Репутация +2. Милосердие в цене.');checkAch();closeModal();render()}
+function shooVagrant(){if(S.techs.diplomat){log('Прогнал бродягу так вежливо, что он извинился. Дипломатия — наука.')}else{S.rep=Math.max(0,S.rep-1);log('Прогнал бродягу. Деревня видела — и запомнила.')}
+closeModal();render()}
+function evThief(){const stash=[];Object.keys(S.res).forEach(k=>{if((S.res[k]||0)>0)stash.push(k)});if(S.coins>=10)stash.push('coins');
+if(!stash.length){log('Ночью в сарай забрался вор — и нашёл только пыль, паутину и пустые банки. Ушёл оскорблённым в своих лучших чувствах.');toast('Вору нечего было красть');return}
+const pick=stash[Math.floor(Math.random()*stash.length)];const n=pick==='coins'?10:1;
+if(pick==='coins')S.coins-=n;else S.res[pick]-=n;
+window._stolen={r:pick,n:n};
+showEvent('Ночной вор','Ночью кто-то рылся в сарае. Утренний пересчёт подтвердил худшее: пропало '+(pick==='coins'?'10 монет из кассы':n+' × '+ITEMS[pick].n+'. «Господин смотритель, так у нас люди пропадают», — хмыкнул бы Густав')+'. Следы грязи ведут в сторону леса.',null,[['Искать (10⚡)','findThief'],['Простить','forgiveThief']])}
+function findThief(){if(!spendE(10))return;const st=window._stolen||{r:'coins',n:10};
+if(Math.random()<.5){if(st.r==='coins')S.coins+=st.n;else addRes(st.r,st.n);log('Догнал вора в лесу. Вернул украденное и добавил наставлений. Лес запомнил.');toast('Добыча возвращена')}else{log('Обшарил весь лес, но следы потерялись в папоротниках. Пропавшее ушло безвозвратно.');toast('Удача отвернулась')}window._stolen=null;closeModal();render()}
+function forgiveThief(){S.rep+=1;const st=window._stolen;log('Простил вора. Он скрылся с добычей'+(st?', но деревня видела твоё великодушие — и оценила':', но совесть ты сохранил целой')+'.');toast('Репутация +1');window._stolen=null;closeModal();render()}
+function evInspector(){const bad=S.corpses.filter(c=>c.days>2).length;
+if(bad>0){const pen=S.techs.diplomat?2:5;S.rep=Math.max(0,S.rep-pen);showEvent('Инспектор','Инспектор епархии прошёл по кладбищу с блокнотом и тонкой улыбкой. Записал: «'+bad+' тел в состоянии, несовместимом с понятием „покой“». Репутация −'+pen+'. «Разберитесь, — сказал он, — епархия не любит запахов».','Оплеуха')}
+else{S.rep+=1;showEvent('Инспектор','Инспектор епархии прошёл по кладбищу с блокнотом. Морг чист, могилы ухожены, свечи ровные. Он поставил галочку и впервые улыбнулся: «Порядок, смотритель. Так держать». Репутация +1.','Комплимент')}}
+function evComet(){S.science+=3;S.stats.scienceTotal+=3;showEvent('Комета','Ночью над кладбищем прошла комета. Старожилы говорят: это к знаниям. Ворон смотрел на небо так, будто знал расписание. +3📜.','Знаки')}
+function evFind(){addRes('stone',2);showEvent('Старый киот','В дальнем углу кладбища провалился старый киот. Под ним — аккуратно сложенные камни. Дядюшка любил порядок даже в руинах. +2🪨.','Находка')}
+function evGustavDeal(){showEvent('Густав с тележкой','Густав привёз тележку жира: «Распродажа, смотритель. Всего 4💰 за штуку, пока не кончилось». Жир — товар деликатный, долго не лежит.','Взять',null,'gustavFatDeal')}
+function gustavFatDeal(){if(!spend('coins',12))return;addRes('fat',3);toast('Жир ×3 за 12💰. Выгодно.');closeModal();render()}
+function evVolunteers(){showEvent('Волонтёры','Пришли волонтёры с метлами: «Говорят, у вас тут образцовое кладбище будет. Дайте маршрут — и мы нажмём». Убраться силами добрых людей стоит 5 монет на чай.',null,['Угостить (5💰)','volunteerHire'],['Вежливо отказать','closeModal'])}
+function volunteerHire(){if(!spend('coins',5))return;S.rep+=1;log('Волонтёры прибрались на кладбище. Чай был горячим, метлы — весёлыми.');toast('Репутация +1');closeModal();render()}
+function showEvent(title,text,btnText,choices,extraFn){let h='<h3>'+title+'</h3><p>'+text+'</p>';
+if(choices){h+='<div class="row">'+choices.map((c,i)=>'<button class="btn '+(i===0?'gold':'')+'" onclick="'+c[1]+'()">'+c[0]+'</button>').join('')+'</div>'}
+else{h+='<button class="btn gold" onclick="closeModal();'+(extraFn?extraFn+'();':'')+'render()">'+(btnText||'Дальше')+'</button>'}
+document.getElementById('modalRoot').innerHTML='<div class="modal-bg"><div class="modal">'+h+'</div></div>'}
+function newDay(){S.day++;S.rain=false;
+S.corpses.forEach(c=>c.days++);
+const bad=S.corpses.filter(c=>c.days>2);
+if(bad.length){const pen=bad.length;S.rep=Math.max(0,S.rep-pen);log('Тела в морге просрочены: репутация −'+pen+'. Ворон посмотрел строго.')}
+if(Math.random()<.6){const stars=1+Math.floor(Math.random()*3+Math.random()*2.5);const st=Math.min(5,Math.max(1,Math.round(stars)));
+const cap=S.techs.logistics?2:1;
+if(S.corpses.length<cap){S.corpses.push({stars:st,days:0,extracted:0,parts:{skull:true,brain:true,blood:true,fat:true,bones:true,flesh:true}});
+log('Ночью привезли постояльца: '+GRAVE_NAMES[Math.floor(Math.random()*GRAVE_NAMES.length)]+' ('+'★'.repeat(st)+'). Повозка скрылась в тумане.')}}
+S.marketPrev=S.market;S.market={candle:12+(Math.random()*4-2),wax:7+(Math.random()*2-1),fertilizer:10+(Math.random()*3-1.5),ink:14+(Math.random()*4-2),skull:30+(Math.random()*8-4),brain:20+(Math.random()*6-3),flesh:4+(Math.random()-0.5)};
+if(S.techs.accountant)S.coins+=2*S.graves.filter(g=>g.occ).length;
+S.donatedToday=0;
+if(S.crow.active&&!S.crow.order&&Math.random()<.4){S.crow.order=CROW_ORDERS[Math.floor(Math.random()*CROW_ORDERS.length)];log('Ворон принёс заказ: «'+S.crow.order.n+'». Птица деловая.')}
+S.energy=S.maxEnergy;
+checkAch();save();
+if(S.rep>=100&&!S.endless){S.endless=true;showVictory()}
+morningEvent();render()}
+function showVictory(){document.getElementById('modalRoot').innerHTML='<div class="modal-bg"><div class="modal"><h2>⚖ ОБРАЗЦОВОЕ КЛАДБИЩЕ ⚖</h2><p>Репутация достигла 100. Церковь в восторге, ворон смотрит с уважением, а Густав предложил партнёрство.</p><p>Ты пришёл сюда безвестным наследником с лопатой — а стал человеком, о котором говорят за столами всей епархии. Дядюшка, где бы он ни был, доволен.</p><p>День '+S.day+'. Похоронено: '+S.stats.buried+'. Монет в сундуке: '+fmt(S.coins)+'.</p><button class="btn gold" onclick="closeModal()">Продолжить бессмертие</button></div></div>'}
+function showHelp(){document.getElementById('modalRoot').innerHTML='<div class="modal-bg" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()"><h3>Как играть</h3><p><b>Цель:</b> довести репутацию до 100 и стать образцовым кладбищем.</p><p><b>Цикл:</b> ночью привозят тела — утром вскрывай (ресурсы + качество), хорони с декором, днём копай землю, крафти свечи, торгуй на рынке. Вечером — «Новый день».</p><p><b>Помни:</b> тела гниют после двух дней — инспектор строг. Кости → мука → удобрение → цветы → могилы и бальзам. Мозг → наука или рынок. Череп — только из головы постояльца, в морге.</p><p><b>Прогресс</b> сохраняется сам в браузере.</p><button class="btn gold" onclick="closeModal()">Понял</button></div></div>'}
+function resetGame(){if(!confirm('Начать заново? Прогресс сотрётся.'))return;localStorage.removeItem('vp5_save');S=defaultState();S.sound=S.sound!==false;S.sound=true;intro();render()}
+function intro(){document.getElementById('modalRoot').innerHTML='<div class="modal-bg"><div class="modal"><h3>Вечный покой</h3><p>Твой дядюшка, смотритель кладбища при маленькой деревне, внезапно ушёл в лучший мир — и по злой иронии оставил тебе не завещание, а территорию с могилами, долгами и лопатой.</p><p>Деревня смотрит косо. Епархия ждёт отчётов. Густав у лавки уже прикидывает, чего новый смотритель захочет купить первым. А ворон на ограде... ворон знает о тебе больше, чем ты о нём.</p><p>Твоя цель — проста и неистребима: сделать кладбище <b>образцовым</b>. Копать, крафтить, торговать, хоронить с достоинством — и однажды услышать, как деревня говорит о тебе с гордостью.</p><button class="btn gold" onclick="closeModal()">Принять наследство</button></div></div>'}
+// ================= СТАРТ =================
+if(!load()){S=defaultState();S.sound=true;log(LOGOS[Math.floor(Math.random()*LOGOS.length)]);intro()}
+else{log('Возвращение на кладбище. День '+S.day+', и всё как оставил.')}
+render();
+</script>
+<script>
+if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})})}
+</script>
+</body>
+</html>
